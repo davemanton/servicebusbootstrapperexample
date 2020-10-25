@@ -1,0 +1,199 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "logicAppName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "metadata": {
+        "description": "Name of the Logic App."
+      }
+    },
+    "logicAppLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "uksouth"
+      ],
+      "metadata": {
+        "description": "Location of the Logic App."
+      }
+    },
+    "topicName": {
+      "type": "string",
+      "metadata": {
+        "description": "Topic name to subscribe to"
+      }
+    },
+    "subscriberName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of subscribing service"
+      }
+    },
+    "frequencyIntervalSeconds": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Frequency interval to check service bus"
+      }
+    },
+    "apiUrl": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Identifier for signposting function"
+      }
+    },
+    "serviceBusConnectionName": {
+      "type": "string",
+      "defaultValue": "servicebus-connection"
+    },
+    "serviceBusDisplayName": {
+      "type": "string",
+      "metadata": {
+        "description": "Azure Service Bus Connection Display Name"
+      }
+    },
+    "serviceBusConnectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure Service Bus Connection String"
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_example_subscriber_name')]",
+      "location": "uksouth",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "When_a_message_is_received_in_a_topic_subscription_(peek-lock)": {
+              "recurrence": {
+                "frequency": "Second",
+                "interval": 10
+              },
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['servicebus']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/head/peek",
+                "queries": {
+                  "sessionId": "None",
+                  "subscriptionType": "Main"
+                }
+              }
+            }
+          },
+          "actions": {
+            "Condition": {
+              "actions": {
+                "Complete_the_message_in_a_topic_subscription": {
+                  "runAfter": {},
+                  "type": "ApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connection": {
+                        "name": "@parameters('$connections')['servicebus']['connectionId']"
+                      }
+                    },
+                    "method": "delete",
+                    "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/complete",
+                    "queries": {
+                      "lockToken": "@triggerBody()?['LockToken']",
+                      "sessionId": "",
+                      "subscriptionType": "Main"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "HTTP": [
+                  "Succeeded",
+                  "Failed",
+                  "Skipped",
+                  "TimedOut"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Dead-letter_the_message_in_a_topic_subscription": {
+                    "runAfter": {},
+                    "type": "ApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connection": {
+                          "name": "@parameters('$connections')['servicebus']['connectionId']"
+                        }
+                      },
+                      "method": "post",
+                      "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/deadletter",
+                      "queries": {
+                        "deadLetterErrorDescription": "",
+                        "deadLetterReason": "Http call failed",
+                        "lockToken": "@triggerBody()?['LockToken']",
+                        "sessionId": ""
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@outputs('HTTP')['statusCode']",
+                      200
+                    ]
+                  }
+                ]
+              },
+              "type": "If"
+            },
+            "HTTP": {
+              "runAfter": {},
+              "type": "Http",
+              "inputs": {
+                "body": {
+                  "messageContent": "@triggerBody()?['ContentData']"
+                },
+                "method": "POST",
+                "uri": "https://mysubscriber.azurewebsites.net/api/incomingMessage/topic-name"
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "servicebus": {
+                "connectionId": "[parameters('connections_servicebus_externalid')]",
+                "connectionName": "servicebus",
+                "id": "/subscriptions/32461d3f-5d85-4dbd-86db-2606d688c623/providers/Microsoft.Web/locations/uksouth/managedApis/servicebus"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
