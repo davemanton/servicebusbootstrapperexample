@@ -25,6 +25,7 @@ namespace ServiceBusBootstrapper
             builder.Services
                 .AddSingleton<IDataProvider<Topic>, TopicDataProvider>()
                 .AddSingleton(service => new ManagementClient(config["ServiceBusManagementConnectionString"]))
+                .AddScoped<IBootstrapServiceBus, ServiceBusBootstrapper>()
                 ;
         }
     }
