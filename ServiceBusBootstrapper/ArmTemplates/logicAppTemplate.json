@@ -41,7 +41,7 @@
       }
     },
     "apiUrl": {
-      "type": "securestring",
+      "type": "string",
       "metadata": {
         "description": "Identifier for signposting function"
       }
