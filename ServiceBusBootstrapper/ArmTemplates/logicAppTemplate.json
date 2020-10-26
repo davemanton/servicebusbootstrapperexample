@@ -35,7 +35,6 @@
     },
     "frequencyIntervalSeconds": {
       "type": "int",
-      "defaultValue": 1,
       "metadata": {
         "description": "Frequency interval to check service bus"
       }
@@ -85,7 +84,7 @@
             "When_a_message_is_received_in_a_topic_subscription_(peek-lock)": {
               "recurrence": {
                 "frequency": "Second",
-                "interval": 10
+                "interval": "[parameters('frequencyIntervalSeconds')]"
               },
               "type": "ApiConnection",
               "inputs": {
@@ -95,7 +94,7 @@
                   }
                 },
                 "method": "get",
-                "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/head/peek",
+                "path": "[format('/{0}/subscriptions/{1}/messages/head/peek', parameters('topicName'), parameters('subscriberName'))]",
                 "queries": {
                   "sessionId": "None",
                   "subscriptionType": "Main"
@@ -116,7 +115,7 @@
                       }
                     },
                     "method": "delete",
-                    "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/complete",
+                    "path": "[format('/{0}/subscriptions/{1}/messages/complete', parameters('topicName'), parameters('subscriberName'))]",
                     "queries": {
                       "lockToken": "@triggerBody()?['LockToken']",
                       "sessionId": "",
@@ -145,7 +144,7 @@
                         }
                       },
                       "method": "post",
-                      "path": "/@{encodeURIComponent(encodeURIComponent('topic-name'))}/subscriptions/@{encodeURIComponent('topic-name-subscriber-one')}/messages/deadletter",
+                      "path": "[format('/{0}/subscriptions/{1}/messages/deadletter', parameters('topicName'), parameters('subscriberName'))]",
                       "queries": {
                         "deadLetterErrorDescription": "",
                         "deadLetterReason": "Http call failed",
@@ -176,7 +175,7 @@
                   "messageContent": "@triggerBody()?['ContentData']"
                 },
                 "method": "POST",
-                "uri": "https://mysubscriber.azurewebsites.net/api/incomingMessage/topic-name"
+                "uri": "[parameters('apiUrl')]"
               }
             }
           },

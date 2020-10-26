@@ -51,7 +51,7 @@ namespace ServiceBusBootstrapper.Bootstrapper
                                 await _serviceBusClient.CreateSubscriptionAsync(subscriptionDescription);
                             }
 
-                            _subscriberBootstrapper.Bootstrap(topic, subscriber);
+                            await _subscriberBootstrapper.Bootstrap(topic, subscriber);
                         }).ToList();
 
                     await Task.WhenAll(subscriptionTasks);

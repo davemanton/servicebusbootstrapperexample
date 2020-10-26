@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Management.Fluent;
+﻿using System.Threading.Tasks;
+using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Extensions.Options;
 using ServiceBusBootstrapper.DataAccess;
@@ -23,21 +24,21 @@ namespace ServiceBusBootstrapper.Bootstrapper
             _logicAppJsonTemplate = fileReader.ReadFileAsString("ArmTemplates\\logicAppTemplate.json");
         }
 
-        public void Bootstrap(Topic topic, Subscriber subscriber)
+        public async Task Bootstrap(Topic topic, Subscriber subscriber)
         {
             var deploymentName = $"ccmq-{topic.Name}-{subscriber.Name}";
 
             var deploymentExists = _azure.Deployments.CheckExistence(_config.SubscribersResourceGroupName, deploymentName);
 
-            if (deploymentExists)
-                return;
+            //if (deploymentExists)
+            //    return;
 
-            _azure.Deployments.Define(deploymentName)
+            await _azure.Deployments.Define(deploymentName)
                 .WithExistingResourceGroup(_config.SubscribersResourceGroupName)
                 .WithTemplate(_logicAppJsonTemplate)
                 .WithParameters(CreateParameters(deploymentName, topic, subscriber))
                 .WithMode(DeploymentMode.Incremental)
-                .Create();
+                .CreateAsync();
         }
 
         private LogicAppSubscriberParameters CreateParameters(string deploymentName,

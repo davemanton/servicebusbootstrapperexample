@@ -1,9 +1,10 @@
-﻿using ServiceBusBootstrapper.DataAccess;
+﻿using System.Threading.Tasks;
+using ServiceBusBootstrapper.DataAccess;
 
 namespace ServiceBusBootstrapper.Bootstrapper
 {
     public interface IBootstrapSubscribers
     {
-        void Bootstrap(Topic topic, Subscriber subscriber);
+        Task Bootstrap(Topic topic, Subscriber subscriber);
     }
 }
