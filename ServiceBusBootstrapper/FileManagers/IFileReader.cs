@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.FileManagers
 {
     public interface IFileReader
     {

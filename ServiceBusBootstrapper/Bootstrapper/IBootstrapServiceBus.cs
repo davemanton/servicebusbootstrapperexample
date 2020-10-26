@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.Bootstrapper
 {
     public interface IBootstrapServiceBus
     {

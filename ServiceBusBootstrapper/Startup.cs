@@ -9,6 +9,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using ServiceBusBootstrapper;
+using ServiceBusBootstrapper.Bootstrapper;
+using ServiceBusBootstrapper.DataAccess;
+using ServiceBusBootstrapper.FileManagers;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 namespace ServiceBusBootstrapper
@@ -43,7 +46,7 @@ namespace ServiceBusBootstrapper
                             .Authenticate(credentials)
                             .WithSubscription(config["AzureSubscriptionId"]);
                     })
-                .AddScoped<IBootstrapServiceBus, ServiceBusBootstrapper>()
+                .AddScoped<IBootstrapServiceBus, Bootstrapper.ServiceBusBootstrapper>()
                 .AddScoped<IBootstrapSubscribers, LogicAppBootstrapper>()
                 .AddScoped<IFileReader, FileReader>(service => new FileReader(executionContextOptions.AppDirectory))
                 ;

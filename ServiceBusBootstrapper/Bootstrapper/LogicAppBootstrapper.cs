@@ -1,9 +1,10 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Azure.Management.Fluent;
+﻿using Microsoft.Azure.Management.Fluent;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Extensions.Options;
+using ServiceBusBootstrapper.DataAccess;
+using ServiceBusBootstrapper.FileManagers;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.Bootstrapper
 {
     public class LogicAppBootstrapper : IBootstrapSubscribers
     {

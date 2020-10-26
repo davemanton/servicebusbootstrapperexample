@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.DataAccess
 {
     public interface IDataProvider<T>
     {

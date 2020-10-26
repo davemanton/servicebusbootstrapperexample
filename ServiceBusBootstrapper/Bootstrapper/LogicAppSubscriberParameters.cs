@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.Bootstrapper
 {
     public class LogicAppSubscriberParameters
     {

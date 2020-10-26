@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.DataAccess
 {
     public class Topic
     {

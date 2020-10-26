@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using ServiceBusBootstrapper.DataAccess;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.Bootstrapper
 {
     public interface IBootstrapSubscribers
     {

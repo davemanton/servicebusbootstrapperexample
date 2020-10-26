@@ -1,4 +1,4 @@
-﻿namespace ServiceBusBootstrapper
+﻿namespace ServiceBusBootstrapper.Bootstrapper
 {
     public class DeploymentParameter
     {

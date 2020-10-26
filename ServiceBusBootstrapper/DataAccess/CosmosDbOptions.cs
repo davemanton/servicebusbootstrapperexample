@@ -1,4 +1,4 @@
-﻿namespace ServiceBusBootstrapper
+﻿namespace ServiceBusBootstrapper.DataAccess
 {
     public class CosmosDbOptions
     {

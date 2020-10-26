@@ -2,8 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus.Management;
+using ServiceBusBootstrapper.DataAccess;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.Bootstrapper
 {
     public class ServiceBusBootstrapper : IBootstrapServiceBus
     {

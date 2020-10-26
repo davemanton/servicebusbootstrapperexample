@@ -5,7 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Options;
 
-namespace ServiceBusBootstrapper
+namespace ServiceBusBootstrapper.DataAccess
 {
     public class TopicDataProvider : IDataProvider<Topic>
     {
