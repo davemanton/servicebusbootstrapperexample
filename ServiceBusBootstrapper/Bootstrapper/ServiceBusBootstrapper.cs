@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Management;
 
 namespace ServiceBusBootstrapper
@@ -10,12 +9,15 @@ namespace ServiceBusBootstrapper
     {
         private readonly IDataProvider<Topic> _topicDataProvider;
         private readonly ManagementClient _serviceBusClient;
+        private readonly IBootstrapSubscribers _subscriberBootstrapper;
 
         public ServiceBusBootstrapper(IDataProvider<Topic> topicDataProvider,
-                                      ManagementClient serviceBusClient)
+                                      ManagementClient serviceBusClient,
+                                      IBootstrapSubscribers subscriberBootstrapper)
         {
             _topicDataProvider = topicDataProvider;
             _serviceBusClient = serviceBusClient;
+            _subscriberBootstrapper = subscriberBootstrapper;
         }
 
         public async Task Bootstrap()
@@ -35,22 +37,24 @@ namespace ServiceBusBootstrapper
                         {
                             var subscriptionExists = await _serviceBusClient.SubscriptionExistsAsync(topic.Name, subscriber.Name);
 
-                            if (subscriptionExists)
-                                return;
-
-                            var subscriptionDescription = new SubscriptionDescription(topic.Name, subscriber.Name)
+                            if (!subscriptionExists)
                             {
-                                DefaultMessageTimeToLive = TimeSpan.FromDays(7),
-                                EnableDeadLetteringOnMessageExpiration = true,
-                                LockDuration = TimeSpan.FromMinutes(2),
-                                MaxDeliveryCount = 1
-                            };
+                                var subscriptionDescription = new SubscriptionDescription(topic.Name, subscriber.Name)
+                                {
+                                    DefaultMessageTimeToLive = TimeSpan.FromDays(7),
+                                    EnableDeadLetteringOnMessageExpiration = true,
+                                    LockDuration = TimeSpan.FromMinutes(2),
+                                    MaxDeliveryCount = 1
+                                };
 
-                            await _serviceBusClient.CreateSubscriptionAsync(subscriptionDescription);
-                        });
+                                await _serviceBusClient.CreateSubscriptionAsync(subscriptionDescription);
+                            }
+
+                            _subscriberBootstrapper.Bootstrap(topic, subscriber);
+                        }).ToList();
 
                     await Task.WhenAll(subscriptionTasks);
-                });
+                }).ToList();
 
             await Task.WhenAll(topicTasks);
         }

@@ -68,8 +68,8 @@
     {
       "type": "Microsoft.Logic/workflows",
       "apiVersion": "2017-07-01",
-      "name": "[parameters('workflows_example_subscriber_name')]",
-      "location": "uksouth",
+      "name": "[parameters('logicAppName')]",
+      "location": "[parameters('logicAppLocation')]",
       "properties": {
         "state": "Enabled",
         "definition": {
@@ -186,12 +186,27 @@
           "$connections": {
             "value": {
               "servicebus": {
-                "connectionId": "[parameters('connections_servicebus_externalid')]",
-                "connectionName": "servicebus",
-                "id": "/subscriptions/32461d3f-5d85-4dbd-86db-2606d688c623/providers/Microsoft.Web/locations/uksouth/managedApis/servicebus"
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'servicebus')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('serviceBusConnectionName'))]",
+                "connectionName": "[parameters('serviceBusConnectionName')]"
               }
             }
           }
+        }
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('serviceBusConnectionName')]",
+      "location": "[parameters('logicAppLocation')]",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'servicebus')]"
+        },
+        "displayName": "[parameters('serviceBusDisplayName')]",
+        "parameterValues": {
+          "connectionString": "[parameters('serviceBusConnectionString')]"
         }
       }
     }

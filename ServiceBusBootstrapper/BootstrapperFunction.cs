@@ -10,16 +10,20 @@ using Newtonsoft.Json;
 
 namespace ServiceBusBootstrapper
 {
-    public static class BootstrapperFunction
+    public class BootstrapperFunction
     {
+        public readonly IBootstrapServiceBus _serviceBusBootstrapper;
+        public BootstrapperFunction(IBootstrapServiceBus serviceBusBootstrapper)
+        {
+            _serviceBusBootstrapper = serviceBusBootstrapper;
+        }
+
         [FunctionName("Bootstrapper")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            var bootstrapper = new ServiceBusBootstrapper();
-
-            await bootstrapper.Bootstrap();
+            await _serviceBusBootstrapper.Bootstrap();
 
             return new OkResult();
         }
